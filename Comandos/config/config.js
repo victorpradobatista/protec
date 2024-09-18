@@ -39,10 +39,21 @@ module.exports = {
         Discord.PermissionFlagsBits.KickMembers
       )
     ) {
+
+      let selectPath = await knex('protec_path').select('*').where({id: interaction.guild.id})
+      let selectPerms = await knex('protec_perms').select('*').where({id: interaction.guild.id})
+      let configVip = (selectPerms[0].permission == 'Bronze') ? (selectPath[0].vip === 'Ativado' ? 'Ativado' : 'Desativado') : "Esta função é paga";
       const embedPainel = new EmbedBuilder()
         .setTitle(`Painel de Configuração`)
         .setDescription(
           "Bem vindo ao painel de configuração! Aqui você pode configurar **todas** as funções do bot.\n\n`Use os botões do menu abaixo para cessar as categorias.`"
+        )
+        .addFields(
+          {name:`Ticket`, value: '`' + selectPath[0].ticket + '`', inline: true},
+          {name:`Anti Link`, value: '`' + selectPath[0].anti_link + '`', inline: true},
+          {name:`Anti Raid`, value: '`' + selectPath[0].anti_raid + '`', inline: true},
+          {name:`Logs`, value: '`' + selectPath[0].logs + '`', inline: true},
+          {name:`Vip`, value: '`'+configVip+'`', inline: true},
         )
         .setColor(config.color);
 

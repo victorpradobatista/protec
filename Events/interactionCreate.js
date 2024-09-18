@@ -24,17 +24,6 @@ const knex = require("knex")({
 
 module.exports = async (client, interaction) => {
   client.on("interactionCreate", async (interaction) => {
-    if (interaction.customId == "buttonBuy") {
-      const [selectSkin, selectMoney] = await Promise.all([
-        knex("skins_jaya")
-          .select("*")
-          .where({ name: interaction.message.embeds[0].data.title }),
-        knex("users_economy_jaya")
-          .select("*")
-          .where({ id: interaction.user.id }),
-      ]);
-    }
-
     if (interaction.values == "protec_invite") {
       const modal = new ModalBuilder()
         .setCustomId("protecModal_invite")
@@ -106,7 +95,7 @@ module.exports = async (client, interaction) => {
         .setStyle(TextInputStyle.Short);
       const ticketStaff = new TextInputBuilder()
         .setCustomId("ticketStaff")
-        .setLabel("Coloque o id do cargo staff que vera os tickets")
+        .setLabel("Coloque o id do cargo staff")
         .setStyle(TextInputStyle.Short);
 
       const ActionRow = new ActionRowBuilder().addComponents(ticketChannel)
@@ -152,6 +141,12 @@ module.exports = async (client, interaction) => {
           ticket_staff: ticketStaff,
         }).where({id_guild: interaction.guild.id})
 
+        await knex('protec_path').update({
+          ticket: 'Configurado',
+        }).where({
+          id: interaction.guild.id
+        })
+
         const embed = new EmbedBuilder()
           .setDescription('Painel configurado com sucesso!')
           .setColor(config.color)
@@ -194,6 +189,12 @@ module.exports = async (client, interaction) => {
           .where({ id_guild: interaction.guild.id });
 
         if (select == false) {
+          await knex('protec_path').update({
+            logs: 'Configurado'
+          }).where({
+            id: interaction.guild.id
+          })
+
           await knex('protec_config').insert({
             id_guild: interaction.guild.id,
             anti_invite: 1,
@@ -225,6 +226,13 @@ module.exports = async (client, interaction) => {
             )
             .setColor(config.color);
 
+            
+            await knex('protec_path').update({
+              logs: 'Configurado'
+            }).where({
+              id: interaction.guild.id
+            })
+
           interaction.reply({ embeds: [embedLogs], ephemeral: true });
         }
       }
@@ -237,6 +245,12 @@ module.exports = async (client, interaction) => {
           .where({ id_guild: interaction.guild.id });
 
         if (select == false) {
+          await knex('protec_path').update({
+            anti_raid: 'Configurado'
+          }).where({
+            id: interaction.guild.id
+          })
+
           await knex('protec_config').insert({
             id_guild: interaction.guild.id,
             anti_invite: 1,
@@ -262,6 +276,12 @@ module.exports = async (client, interaction) => {
               max_members: raidqtd,
             })
             .where({ id_guild: interaction.guild.id });
+
+            await knex('protec_path').update({
+              anti_raid: 'Configurado'
+            }).where({
+              id: interaction.guild.id
+            })
 
           const embed = new EmbedBuilder()
             .setDescription(
@@ -292,19 +312,20 @@ module.exports = async (client, interaction) => {
                   "``` \n \n Responda com Sim ou Não!"
               )
               .setColor(config.color);
+
+            await knex('protec_path').update({
+              anti_link: 'Configuração feita de forma incorreta!'
+            }).where({
+              id: interaction.guild.id
+            })
             return interaction.reply({ embeds: [embed], ephemeral: true });
           }
 
           if (trueorfalse === "sim") {
-            await knex('protec_config').insert({
-              id_guild: interaction.guild.id,
+            await knex('protec_config').update({
               anti_invite: 1,
-              invite_channels: 'none',
-              max_members: 10,
-              logs: null,
-              ticket: null,
-              ticket_category: null,
-              ticket_desc: 'Ticket'
+            }).where({
+              id_guild: interaction.guild.id
             })
 
             const embedT = new EmbedBuilder()
@@ -313,19 +334,20 @@ module.exports = async (client, interaction) => {
               )
               .setColor(config.color);
 
+              await knex('protec_path').update({
+                anti_link: 'Configurado',
+              }).where({
+                id: interaction.guild.id
+              })
+
             return interaction.reply({ embeds: [embedT], ephemeral: true });
           }
 
           if (trueorfalse === "não" || trueorfalse === "nao") {
-            await knex('protec_config').insert({
-              id_guild: interaction.guild.id,
+            await knex('protec_config').update({
               anti_invite: 0,
-              invite_channels: 'none',
-              max_members: 10,
-              logs: null,
-              ticket: null,
-              ticket_category: null,
-              ticket_desc: 'Ticket'
+            }).where({
+              id_guild: interaction.guild.id,
             })
 
             const embed404 = new EmbedBuilder()
@@ -333,6 +355,12 @@ module.exports = async (client, interaction) => {
                 "Configuração feita! Você selecionou para não usar a segurança de convites!"
               )
               .setColor(config.color);
+
+              await knex('protec_path').update({
+                anti_link: 'Configurado',
+              }).where({
+                id: interaction.guild.id
+              })
 
             return interaction.reply({ embeds: [embed404], ephemeral: true });
           }
@@ -345,6 +373,13 @@ module.exports = async (client, interaction) => {
                   "``` \n \n Responda com Sim ou Não!"
               )
               .setColor(config.color);
+
+              await knex('protec_path').update({
+                anti_link: 'Configuração feita de forma incorreta!'
+              }).where({
+                id: interaction.guild.id
+              })
+
             return interaction.reply({ embeds: [embed], ephemeral: true });
           }
 
@@ -359,6 +394,12 @@ module.exports = async (client, interaction) => {
               )
               .setColor(config.color);
 
+              await knex('protec_path').update({
+                anti_link: 'Configurado',
+              }).where({
+                id: interaction.guild.id
+              })
+
             return interaction.reply({ embeds: [embedT], ephemeral: true });
           }
 
@@ -372,6 +413,12 @@ module.exports = async (client, interaction) => {
                 "Configuração feita! Você selecionou para não usar a segurança de convites!"
               )
               .setColor(config.color);
+
+              await knex('protec_path').update({
+                anti_link: 'Configurado',
+              }).where({
+                id: interaction.guild.id
+              })
 
             return interaction.reply({ embeds: [embed404], ephemeral: true });
           }

@@ -26,14 +26,19 @@ module.exports = async (client, interaction) => {
     let owner = client.guilds.cache.get(msg.guildId);
     let select = await knex("protec_flood").select("*").where({
       id: msg.author.id,
+    }).andWhere({
+      id_guild: msg.guildId,
     });
 
-    if (select == false) {
+    if(msg.author.id == client.user.id){
+      return;
+    } else if (select == false) {
       await knex("protec_flood").insert({
         id: msg.author.id,
         message: msg.content,
         qtd: 1,
         punicoes: 0,
+        id_guild: msg.guildId,
       });
       setTimeout(async () => {
         await knex("protec_flood")
@@ -42,7 +47,7 @@ module.exports = async (client, interaction) => {
           })
           .where({
             id: msg.author.id,
-          });
+          }).andWhere({id_guild: msg.guildId,});
         console.log("Flood não começou.");
       }, 1 * 1000 * 25);
     } else if (
@@ -57,6 +62,8 @@ module.exports = async (client, interaction) => {
         })
         .where({
           id: msg.author.id,
+        }).andWhere({
+          id_guild: msg.guildId,
         });
 
       if (qtd > 7) {
@@ -68,7 +75,9 @@ module.exports = async (client, interaction) => {
           .update({
             punicoes: parseInt(select[0].punicoes) + 1,
           })
-          .where({ id: msg.author.id });
+          .where({ id: msg.author.id }).andWhere({
+            id_guild: msg.guildId
+          });
 
         for (const channel of channels.values()) {
           try {
@@ -149,6 +158,8 @@ module.exports = async (client, interaction) => {
             })
             .where({
               id: msg.author.id,
+            }).andWhere({
+              id_guild: msg.guildId,
             });
           console.log("Flood não começou.");
         }, 1 * 1000 * 5);
