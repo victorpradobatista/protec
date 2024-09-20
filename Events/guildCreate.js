@@ -13,6 +13,7 @@ const {
   StringSelectMenuOptionBuilder,
   PermissionFlagsBits,
 } = require("discord.js");
+const fs = require("fs");
 
 const knex = require("knex")({
     client: "sqlite3",
@@ -24,6 +25,35 @@ const knex = require("knex")({
 
 module.exports = async (client, interaction) => {
   client.on("guildCreate", async (guild) => { 
+    const SlashsArray = [];
+
+    fs.readdir(`./Comandos`, (error, folders) => {
+      if (error) {
+          console.log(error);
+          return;
+      }
+
+      folders.forEach((folder) => {
+          fs.readdir(`./Comandos/${folder}/`, (error, files) => {
+              if (error) {
+                  console.log(error);
+                  return;
+              }
+              files.forEach((file) => {
+                  if (!file.endsWith('.js')) return;
+
+                  const filePath = `../Comandos/${folder}/${file}`;
+                  const fileModule = require(filePath);
+
+                  if (!fileModule.name) return;
+                  client.slashCommands.set(fileModule.name, fileModule);
+
+                  SlashsArray.push(fileModule);
+              });
+          });
+      });
+  });
+
     let selectPerms = await knex("protec_perms").select('*').where({
       id: guild.id
     })
